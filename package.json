@@ -8,13 +8,25 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
-        "@emotion/react": "^11.11.3",
-        "@emotion/styled": "^11.11.0",
-        "@mui/icons-material": "^5.15.10",
-        "@mui/material": "^5.15.10",
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.0",
+        "@firebase/app": "^0.11.5",
+        "@firebase/messaging": "^0.12.17",
+        "@mui/icons-material": "^5.17.1",
+        "@mui/material": "^5.17.1",
+        "@types/react-router-dom": "^5.3.3",
+        "axios": "^1.9.0",
+        "bcryptjs": "^3.0.2",
+        "cors": "^2.8.5",
         "date-fns": "^3.3.1",
+        "dotenv": "^16.5.0",
+        "express": "^5.1.0",
+        "firebase": "^9.23.0",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.14.1",
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^7.5.3"
     },
     "devDependencies": {
         "@babel/core": "^7.23.9",

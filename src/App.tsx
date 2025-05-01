@@ -4,17 +4,22 @@ import {
     Box,
     Typography,
     Fab,
-    Dialog,
-    AppBar,
-    Toolbar,
-    IconButton,
     useTheme,
     Paper,
+    AppBar,
+    Toolbar,
 } from '@mui/material';
-import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import { TaskProvider, useTaskContext } from './context/TaskContext';
+import { AuthProvider } from './context/AuthContext';
 import { TaskList } from './components/TaskList';
-import { TaskForm } from './components/TaskForm';
+import { AddTaskDialog } from './components/AddTaskDialog';
+import PrivateRoute from './components/PrivateRoute';
+
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 
 const AppContent: React.FC = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -25,11 +30,13 @@ const AppContent: React.FC = () => {
     const handleCloseDialog = () => setIsDialogOpen(false);
 
     return (
-        <Box sx={{
-            minHeight: '100vh',
-            bgcolor: 'background.default',
-            background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        }}>
+        <Box
+            sx={{
+                minHeight: '100vh',
+                bgcolor: 'background.default',
+                background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+            }}
+        >
             <AppBar
                 position="static"
                 elevation={0}
@@ -106,67 +113,38 @@ const AppContent: React.FC = () => {
                     <AddIcon />
                 </Fab>
 
-                <Dialog
-                    fullWidth
-                    maxWidth="sm"
+                <AddTaskDialog
                     open={isDialogOpen}
                     onClose={handleCloseDialog}
-                    PaperProps={{
-                        sx: {
-                            borderRadius: 2,
-                            background: 'rgba(255, 255, 255, 0.9)',
-                            backdropFilter: 'blur(10px)',
-                        }
-                    }}
-                >
-                    <AppBar
-                        sx={{
-                            position: 'relative',
-                            background: 'transparent',
-                            boxShadow: 'none',
-                            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-                        }}
-                    >
-                        <Toolbar>
-                            <IconButton
-                                edge="start"
-                                color="inherit"
-                                onClick={handleCloseDialog}
-                                aria-label="close"
-                            >
-                                <CloseIcon />
-                            </IconButton>
-                            <Typography
-                                sx={{ ml: 2, flex: 1 }}
-                                variant="h6"
-                                component="div"
-                                color="primary"
-                            >
-                                Add New Task
-                            </Typography>
-                        </Toolbar>
-                    </AppBar>
-                    <Box sx={{ p: 3 }}>
-                        <TaskForm
-                            onSave={(task) => {
-                                addTask(task);
-                                handleCloseDialog();
-                            }}
-                            onClose={handleCloseDialog}
-                        />
-                    </Box>
-                </Dialog>
+                    onSave={addTask}
+                />
             </Container>
         </Box>
     );
 };
 
-const App: React.FC = () => {
-    return (
+const App: React.FC = () => (
+    <AuthProvider>
         <TaskProvider>
-            <AppContent />
-        </TaskProvider>
-    );
-};
+            <Router>
+                <Routes>
+                    {/* Public routes */}
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
 
-export default App; 
+                    {/* Private route */}
+                    <Route
+                        path="/"
+                        element={
+                            <PrivateRoute>
+                                <AppContent />
+                            </PrivateRoute>
+                        }
+                    />
+                </Routes>
+            </Router>
+        </TaskProvider>
+    </AuthProvider>
+);
+
+export default App;

@@ -8,7 +8,8 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    FormHelperText,
+    Checkbox,
+    FormControlLabel,
 } from '@mui/material';
 import { Task } from '../types';
 
@@ -23,7 +24,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => 
         title: '',
         description: '',
         dueDate: new Date(),
-        priority: 'medium',
+        priority: 'medium', // Убедитесь, что priority по умолчанию имеет тип 'medium'
         completed: false,
     });
 
@@ -32,7 +33,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => 
             setFormData({
                 title: task.title,
                 description: task.description,
-                dueDate: task.dueDate,
+                dueDate: new Date(task.dueDate),
                 priority: task.priority,
                 completed: task.completed,
             });
@@ -41,6 +42,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => 
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!formData.title.trim()) return;
+
         const taskToSave: Task = {
             ...formData,
             id: task?.id || Date.now().toString(),
@@ -54,8 +58,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => 
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <TextField
-                        fullWidth
                         label="Title"
+                        fullWidth
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         required
@@ -63,19 +67,21 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => 
                 </Grid>
                 <Grid item xs={12}>
                     <TextField
-                        fullWidth
                         label="Description"
                         multiline
                         rows={4}
+                        fullWidth
                         value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        onChange={(e) =>
+                            setFormData({ ...formData, description: e.target.value })
+                        }
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField
-                        fullWidth
                         label="Due Date"
                         type="date"
+                        fullWidth
                         value={formData.dueDate.toISOString().split('T')[0]}
                         onChange={(e) => setFormData({ ...formData, dueDate: new Date(e.target.value) })}
                         InputLabelProps={{
@@ -87,25 +93,36 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => 
                     <FormControl fullWidth>
                         <InputLabel>Priority</InputLabel>
                         <Select
-                            value={formData.priority}
                             label="Priority"
-                            onChange={(e) => setFormData({ ...formData, priority: e.target.value as 'low' | 'medium' | 'high' })}
+                            value={formData.priority}
+                            onChange={(e) => setFormData({ ...formData, priority: e.target.value as 'high' | 'medium' | 'low' })}
                         >
-                            <MenuItem value="low">Low</MenuItem>
-                            <MenuItem value="medium">Medium</MenuItem>
                             <MenuItem value="high">High</MenuItem>
+                            <MenuItem value="medium">Medium</MenuItem>
+                            <MenuItem value="low">Low</MenuItem>
                         </Select>
                     </FormControl>
                 </Grid>
                 <Grid item xs={12}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                        <Button onClick={onClose}>Cancel</Button>
-                        <Button type="submit" variant="contained" color="primary">
-                            {task ? 'Save Changes' : 'Add Task'}
-                        </Button>
-                    </Box>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={formData.completed}
+                                onChange={(e) => setFormData({ ...formData, completed: e.target.checked })}
+                            />
+                        }
+                        label="Completed"
+                    />
                 </Grid>
             </Grid>
+            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
+                <Button variant="outlined" color="primary" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button type="submit" variant="contained" color="primary">
+                    Save
+                </Button>
+            </Box>
         </form>
     );
-}; 
+};
