@@ -159,7 +159,7 @@ export const TaskList: React.FC = () => {
                         borderRadius: 2,
                         background: 'rgba(255, 255, 255, 0.9)',
                         backdropFilter: 'blur(10px)',
-                    }
+                    },
                 }}
             >
                 <AppBar
@@ -201,4 +201,4 @@ export const TaskList: React.FC = () => {
             </Dialog>
         </>
     );
-}; 
+};

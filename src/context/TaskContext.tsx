@@ -1,60 +1,125 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Task, TaskFormData, TaskContextType } from '../types';
+import { tasks as tasksApi } from '../services/api';
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
 
-    const addTask = useCallback((taskData: Omit<TaskFormData, 'id'>) => {
-        const newTask: Task = {
-            ...taskData,
-            id: Date.now().toString(),
-            completed: false,
-            createdAt: new Date(),
+    // Нормализация: _id -> id, преобразование dueDate в объект Date
+    const normalizeTask = (task: any): Task => ({
+        ...task,
+        id: task._id,
+        dueDate: new Date(task.dueDate), // Преобразуем строку в объект Date
+    });
+
+    // Загрузка задач
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const response = await tasksApi.getAll();
+                setTasks(response.data.map(normalizeTask));
+            } catch (error) {
+                console.error('Ошибка при загрузке задач:', error);
+            }
         };
-        setTasks((prev) => [...prev, newTask]);
+        fetchTasks();
     }, []);
 
-    const updateTask = useCallback((id: string, updatedTask: Partial<Omit<Task, 'id'>>) => {
-        setTasks((prev) =>
-            prev.map((task) =>
-                task.id === id ? { ...task, ...updatedTask } : task
-            )
-        );
+    const addTask = useCallback(async (taskData: Omit<TaskFormData, 'id'>) => {
+        try {
+            const response = await tasksApi.create({
+                ...taskData,
+                completed: false,
+                dueDate: new Date(taskData.dueDate).toISOString(), // Преобразуем Date в строку ISO
+            });
+            setTasks((prev) => [...prev, normalizeTask(response.data)]);
+        } catch (error) {
+            console.error('Ошибка при добавлении задачи:', error);
+        }
     }, []);
 
-    const deleteTask = useCallback((id: string) => {
-        setTasks((prev) => prev.filter((task) => task.id !== id));
+    const updateTask = useCallback(async (id: string, updatedTask: Partial<Omit<Task, 'id'>>) => {
+        try {
+            const normalizedTask = {
+                ...updatedTask,
+                dueDate: updatedTask.dueDate instanceof Date
+                    ? updatedTask.dueDate.toISOString()
+                    : new Date(updatedTask.dueDate!).toISOString(),
+            };
+
+            // Обновим локально СРАЗУ
+            setTasks((prev) =>
+                prev.map((task) =>
+                    task.id === id ? { ...task, ...updatedTask } : task
+                )
+            );
+
+            // Потом отправим на бэк
+            const response = await tasksApi.update(id, normalizedTask);
+            const updated = normalizeTask(response.data);
+
+            // Финальный update после ответа сервера
+            setTasks((prev) =>
+                prev.map((task) => (task.id === id ? updated : task))
+            );
+        } catch (error) {
+            console.error('Ошибка при обновлении задачи:', error);
+        }
+    }, []);
+
+
+    const deleteTask = useCallback(async (id: string) => {
+        try {
+            await tasksApi.delete(id);
+            setTasks((prev) => prev.filter((task) => task.id !== id));
+        } catch (error) {
+            console.error('Ошибка при удалении задачи:', error);
+        }
     }, []);
 
     const toggleTaskComplete = useCallback((id: string) => {
-        setTasks((prev) =>
-            prev.map((task) =>
+        setTasks((prev) => {
+            const updatedTasks = prev.map((task) =>
                 task.id === id ? { ...task, completed: !task.completed } : task
-            )
-        );
-    }, []);
+            );
+            const updatedTask = updatedTasks.find((task) => task.id === id);
+            if (updatedTask) {
+                updateTask(id, { completed: updatedTask.completed });
+            }
+            return updatedTasks;
+        });
+    }, [tasks, updateTask]);
 
-    const editTask = (task: Task) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((t) => (t.id === task.id ? task : t))
-        );
-    };
+    const editTask = useCallback((updatedTask: Task) => {
+        if (!updatedTask.id) {
+            console.error('editTask: ID задачи не найден');
+            return;
+        }
 
-    const value = {
+        const { id, ...rest } = updatedTask;
+
+        const updatedData = {
+            ...rest,
+            dueDate: new Date(updatedTask.dueDate),
+        };
+
+        updateTask(id, updatedData);
+    }, [updateTask]);
+
+
+    const value: TaskContextType = {
         tasks,
         addTask,
         updateTask,
         deleteTask,
         toggleTaskComplete,
-        editTask
+        editTask,
     };
 
     return (
-        <TaskContext.Provider
-            value={value}
-        >
+        <TaskContext.Provider value={value}>
             {children}
         </TaskContext.Provider>
     );
@@ -62,8 +127,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useTaskContext = () => {
     const context = useContext(TaskContext);
-    if (context === undefined) {
+    if (!context) {
         throw new Error('useTaskContext must be used within a TaskProvider');
     }
     return context;
-}; 
+};
