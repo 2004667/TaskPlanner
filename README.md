@@ -26,7 +26,11 @@ Build an intuitive and interactive task management app that allows users to:
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: [React](https://reactjs.org/), Material UI(CSS)
+- **Frontend**: [React](https://reactjs.org/)
+  - React + TypeScript
+  - Axios for API calls
+  - React Context for state management
+  - MaterialUI for UI components and layout
 - **Backend**: [Firebase](https://firebase.google.com/)
   - Firebase Authentication
   - Firestore (for storing tasks)
