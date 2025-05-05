@@ -4,7 +4,6 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// Register new user
 router.post('/register', async (req, res) => {
     try {
         const user = new User(req.body);
@@ -16,7 +15,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login user
 router.post('/login', async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email });

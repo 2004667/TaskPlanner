@@ -24,7 +24,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => 
         title: '',
         description: '',
         dueDate: new Date(),
-        priority: 'medium', // Убедитесь, что priority по умолчанию имеет тип 'medium'
+        priority: 'medium',
         completed: false,
     });
 

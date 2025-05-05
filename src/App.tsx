@@ -26,7 +26,7 @@ const AppContent: React.FC = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const theme = useTheme();
     const { addTask } = useTaskContext();
-    const { logout } = useAuth(); // <-- Access the logout function
+    const { logout } = useAuth();
 
     const handleOpenDialog = () => setIsDialogOpen(true);
     const handleCloseDialog = () => setIsDialogOpen(false);
@@ -62,7 +62,6 @@ const AppContent: React.FC = () => {
                         Daily Task Planner
                     </Typography>
 
-                    {/* Exit Button */}
                     <Button
                         color="error"
                         variant="outlined"
@@ -140,11 +139,9 @@ const App: React.FC = () => (
         <TaskProvider>
             <Router>
                 <Routes>
-                    {/* Public routes */}
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
 
-                    {/* Private route */}
                     <Route
                         path="/"
                         element={

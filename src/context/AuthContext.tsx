@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const response = await auth.login({ email, password });
             const { token, user } = response.data;
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));  // Сохраняем пользователя в localStorage
+            localStorage.setItem('user', JSON.stringify(user));
             setToken(token);
             setUser(user);
         } catch (error) {
@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const response = await auth.register({ name, email, password });
             const { token, user } = response.data;
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));  // Сохраняем пользователя в localStorage
+            localStorage.setItem('user', JSON.stringify(user));
             setToken(token);
             setUser(user);
         } catch (error) {
@@ -52,12 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = useCallback(() => {
         localStorage.removeItem('token');
-        localStorage.removeItem('user');  // Удаляем пользователя из localStorage
+        localStorage.removeItem('user');
         setToken(null);
         setUser(null);
     }, []);
 
-    // Автоматическая проверка токена и пользователя на старте
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');

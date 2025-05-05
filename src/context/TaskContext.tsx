@@ -7,14 +7,12 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
 
-    // Нормализация: _id -> id, преобразование dueDate в объект Date
     const normalizeTask = (task: any): Task => ({
         ...task,
         id: task._id,
-        dueDate: new Date(task.dueDate), // Преобразуем строку в объект Date
+        dueDate: new Date(task.dueDate),
     });
 
-    // Загрузка задач
     useEffect(() => {
         const fetchTasks = async () => {
             try {
@@ -32,7 +30,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const response = await tasksApi.create({
                 ...taskData,
                 completed: false,
-                dueDate: new Date(taskData.dueDate).toISOString(), // Преобразуем Date в строку ISO
+                dueDate: new Date(taskData.dueDate).toISOString(),
             });
             setTasks((prev) => [...prev, normalizeTask(response.data)]);
         } catch (error) {
@@ -49,18 +47,15 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     : new Date(updatedTask.dueDate!).toISOString(),
             };
 
-            // Обновим локально СРАЗУ
             setTasks((prev) =>
                 prev.map((task) =>
                     task.id === id ? { ...task, ...updatedTask } : task
                 )
             );
 
-            // Потом отправим на бэк
             const response = await tasksApi.update(id, normalizedTask);
             const updated = normalizeTask(response.data);
 
-            // Финальный update после ответа сервера
             setTasks((prev) =>
                 prev.map((task) => (task.id === id ? updated : task))
             );
