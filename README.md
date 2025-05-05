@@ -26,7 +26,7 @@ Build an intuitive and interactive task management app that allows users to:
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: [React](https://reactjs.org/)
+- **Frontend**: [React](https://reactjs.org/), Material UI(CSS)
 - **Backend**: [Firebase](https://firebase.google.com/)
   - Firebase Authentication
   - Firestore (for storing tasks)
@@ -46,7 +46,7 @@ Build an intuitive and interactive task management app that allows users to:
 ## 📐 Colloborators
 - Said Darkhanuly 
 - Zhanali Kopzhasarov 
-- Erasyl Suleymenov
+- Yerassyl Suleymenov
 - Iliyas Nysanbek
 - Termirlan Zamangali
 
